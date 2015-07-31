@@ -1,5 +1,6 @@
 # dmenu version
 VERSION = 4.6
+VERSION = 4.6-git-cks
 
 # paths
 PREFIX = /usr/local
