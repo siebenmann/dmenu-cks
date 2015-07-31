@@ -50,6 +50,8 @@ static void run(void);
 static void setup(void);
 static void usage(void);
 
+static Bool setcommonpref(Bool again);
+
 static char text[BUFSIZ] = "";
 static int bh, mw, mh;
 static int inputw, promptw;
@@ -97,6 +99,8 @@ main(int argc, char *argv[]) {
 			deletebs = True;
 		else if(!strcmp(argv[i], "-P"))	  /* pointer placement */
 			pointermonitor = True;
+		else if(!strcmp(argv[i], "-t"))   /* shell like tab completion */
+			tabcomplete = True;
 		else if(i+1 == argc)
 			usage();
 		/* these options take one argument */
@@ -295,16 +299,19 @@ insert(const char *str, ssize_t n) {
 	match();
 }
 
+static KeySym lastksym = NoSymbol;
 void
 keypress(XKeyEvent *ev) {
 	char buf[32];
 	int len;
-	KeySym ksym = NoSymbol;
+	KeySym ksym = NoSymbol, oldksym;
 	Status status;
 
 	len = XmbLookupString(xic, ev, buf, sizeof buf, &ksym, &status);
 	if(status == XBufferOverflow)
 		return;
+	oldksym = lastksym;
+	lastksym = ksym;
 	if(ev->state & ControlMask)
 		switch(ksym) {
 		case XK_a: ksym = XK_Home;      break;
@@ -458,7 +465,9 @@ keypress(XKeyEvent *ev) {
 	case XK_Tab:
 		if(!sel)
 			return;
-		strncpy(text, sel->text, sizeof text - 1);
+		if (!tabcomplete ||
+		    !setcommonpref(oldksym == XK_Tab ? False : True))
+			strncpy(text, sel->text, sizeof text - 1);
 		text[sizeof text - 1] = '\0';
 		cursor = strlen(text);
 		match();
@@ -519,6 +528,56 @@ match(void) {
 	}
 	curr = sel = matches;
 	calcoffsets();
+}
+
+Bool
+setcommonpref(Bool again) {
+	size_t len, t, start, maxlen;
+	int c;
+	Item *item, *prefitem;
+
+	if (!curr || text[0] == 0) {
+		return False;
+	}
+
+	/* Find an item that is a suffix of the current text, and the
+	   minimum length of all items that are suffixes of the current
+	   text. */
+	maxlen = sizeof(text);
+	prefitem = NULL;
+	start = strlen(text);
+	for (item = curr; item != next; item = item->right) {
+		if (fstrncmp(item->text, text, start) != 0)
+			continue;
+		if (!prefitem)
+			prefitem = item;
+		t = strlen(item->text);
+		if (maxlen > t)
+			maxlen = t;
+		break;
+	}
+	if (!prefitem)
+		return False;
+
+	/* Repeatedly attempt to lengthen the common prefix. */
+	for (len = start; len < maxlen; len++) {
+		c = prefitem->text[len];
+		for (item = curr; item != next; item = item->right) {
+			if (fstrncmp(item->text, text, start) != 0)
+				continue;
+			if (item->text[len] != c) {
+				if (len == start)
+					return again;
+				else {
+					strncpy(text, item->text, len);
+					text[len] = 0;
+				}
+				return True;
+			}
+		}
+	}
+	strncpy(text, prefitem->text, len+1);
+	return True;
 }
 
 size_t
@@ -691,7 +750,7 @@ setup(void) {
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-db] [-f] [-i] [-P] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-b] [-db] [-f] [-i] [-P] [-t] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v]\n", stderr);
 	exit(1);
 }
