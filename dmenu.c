@@ -93,6 +93,8 @@ main(int argc, char *argv[]) {
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
 		}
+		else if(!strcmp(argv[i], "-db"))  /* delete magic setting */
+			deletebs = True;
 		else if(!strcmp(argv[i], "-P"))	  /* pointer placement */
 			pointermonitor = True;
 		else if(i+1 == argc)
@@ -308,7 +310,7 @@ keypress(XKeyEvent *ev) {
 		case XK_a: ksym = XK_Home;      break;
 		case XK_b: ksym = XK_Left;      break;
 		case XK_c: ksym = XK_Escape;    break;
-		case XK_d: ksym = XK_Delete;    break;
+		case XK_d: ksym = deletebs ? XK_Escape : XK_Delete;    break;
 		case XK_e: ksym = XK_End;       break;
 		case XK_f: ksym = XK_Right;     break;
 		case XK_g: ksym = XK_Escape;    break;
@@ -364,9 +366,11 @@ keypress(XKeyEvent *ev) {
 			insert(buf, len);
 		break;
 	case XK_Delete:
-		if(text[cursor] == '\0')
-			return;
-		cursor = nextrune(+1);
+	        if(!deletebs) {
+			if(text[cursor] == '\0')
+				return;
+			cursor = nextrune(+1);
+		}
 		/* fallthrough */
 	case XK_BackSpace:
 		if(cursor == 0)
@@ -687,7 +691,7 @@ setup(void) {
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-f] [-i] [-P] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-b] [-db] [-f] [-i] [-P] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v]\n", stderr);
 	exit(1);
 }

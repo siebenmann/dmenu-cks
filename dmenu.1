@@ -4,6 +4,7 @@ dmenu \- dynamic menu
 .SH SYNOPSIS
 .B dmenu
 .RB [ \-b ]
+.RB [ \-db ]
 .RB [ \-f ]
 .RB [ \-i ]
 .RB [ \-P ]
@@ -41,6 +42,9 @@ which lists programs in the user's $PATH and runs the result in their $SHELL.
 .TP
 .B \-b
 dmenu appears at the bottom of the screen instead of the top.
+.TP
+.B \-db
+Delete acts as Backspace and C\-d acts as Escape.
 .TP
 .B \-f
 dmenu grabs the keyboard before reading stdin.  This is faster, but will lock up

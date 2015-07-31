@@ -20,3 +20,4 @@ static unsigned int lines      = 0;
 
 /* cks */
 static Bool pointermonitor = False;
+static Bool deletebs = False;
