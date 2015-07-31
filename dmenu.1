@@ -6,6 +6,7 @@ dmenu \- dynamic menu
 .RB [ \-b ]
 .RB [ \-f ]
 .RB [ \-i ]
+.RB [ \-P ]
 .RB [ \-l
 .IR lines ]
 .RB [ \-m
@@ -47,6 +48,16 @@ X until stdin reaches end\-of\-file.
 .TP
 .B \-i
 dmenu matches menu items case insensitively.
+.TP
+.B \-P
+dmenu is displayed on the monitor the mouse pointer is currently in.
+If neither 
+.B \-P
+or
+.B \-m
+are given, dmenu is displayed on the monitor that has the window with
+focus; if no window has focus, it is displayed on the monitor the pointer
+is in.
 .TP
 .BI \-l " lines"
 dmenu lists items vertically, with the given number of lines.

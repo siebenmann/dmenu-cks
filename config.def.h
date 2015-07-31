@@ -17,3 +17,6 @@ static const char *outbgcolor  = "#00ffff";
 static const char *outfgcolor  = "#000000";
 /* -l option; if nonzero, dmenu uses vertical list with given number of lines */
 static unsigned int lines      = 0;
+
+/* cks */
+static Bool pointermonitor = False;

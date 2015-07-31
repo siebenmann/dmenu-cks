@@ -93,6 +93,8 @@ main(int argc, char *argv[]) {
 			fstrncmp = strncasecmp;
 			fstrstr = cistrstr;
 		}
+		else if(!strcmp(argv[i], "-P"))	  /* pointer placement */
+			pointermonitor = True;
 		else if(i+1 == argc)
 			usage();
 		/* these options take one argument */
@@ -623,7 +625,7 @@ setup(void) {
 		XGetInputFocus(dpy, &w, &di);
 		if(mon != -1 && mon < n && mon >= 0)
 			i = mon;
-		if(i < 0 && w != root && w != PointerRoot && w != None) {
+		if(i < 0 && !pointermonitor && w != root && w != PointerRoot && w != None) {
 			/* find top-level window containing current input focus */
 			do {
 				if(XQueryTree(dpy, (pw = w), &dw, &w, &dws, &du) && dws)
@@ -685,7 +687,7 @@ setup(void) {
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-f] [-i] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-b] [-f] [-i] [-P] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v]\n", stderr);
 	exit(1);
 }
