@@ -448,6 +448,7 @@ keypress(XKeyEvent *ev) {
 			calcoffsets();
 		}
 		break;
+	case XK_ISO_Left_Tab:
 	case XK_Tab:
 		if(!sel)
 			return;
