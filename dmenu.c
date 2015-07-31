@@ -32,6 +32,7 @@ struct Item {
 	char *text;
 	Item *left, *right;
 	Bool out;
+	Bool hidden;	/* item is not displayed unless autocomplete matches it */
 };
 
 static void appenditem(Item *item, Item **list, Item **last);
@@ -508,8 +509,10 @@ match(void) {
 		if(i != tokc) /* not all tokens match */
 			continue;
 		/* exact matches go first, then prefixes, then substrings */
-		if(!tokc || !fstrncmp(tokv[0], item->text, len+1))
-			appenditem(item, &matches, &matchend);
+		if(!tokc || !fstrncmp(tokv[0], item->text, len+1)) {
+			if (tokc || !item->hidden)
+				appenditem(item, &matches, &matchend);
+		}
 		else if(!fstrncmp(tokv[0], item->text, len))
 			appenditem(item, &lprefix, &prefixend);
 		else
@@ -615,9 +618,16 @@ void
 readstdin(void) {
 	char buf[sizeof text], *p, *maxstr = NULL;
 	size_t i, max = 0, size = 0;
+	Bool hidden = False;
 
 	/* read each line from stdin and add it to the item list */
 	for(i = 0; fgets(buf, sizeof buf, stdin); i++) {
+		/* blank line == start hiding items from normal display */
+		if(buf[0] == '\n') {
+			hidden = True;
+			i--;
+			continue;
+		}
 		if(i+1 >= size / sizeof *items)
 			if(!(items = realloc(items, (size += BUFSIZ))))
 				die("cannot realloc %u bytes:", size);
@@ -626,6 +636,7 @@ readstdin(void) {
 		if(!(items[i].text = strdup(buf)))
 			die("cannot strdup %u bytes:", strlen(buf)+1);
 		items[i].out = False;
+		items[i].hidden = hidden;
 		if(strlen(items[i].text) > max)
 			max = strlen(maxstr = items[i].text);
 	}

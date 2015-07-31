@@ -36,6 +36,10 @@ stdin.  When the user selects an item and presses Return, their choice is printe
 to stdout and dmenu terminates.  Entering text will narrow the items to those
 matching the tokens in the input.
 .P
+If there is a blank line in stdin, all items after it are not listed as
+possible completions when there is no text entered. They become visible
+only if they match some entered text.
+.P
 .B dmenu_run
 is a script used by
 .IR dwm (1)
