@@ -599,7 +599,7 @@ setup(void) {
 	XineramaScreenInfo *info;
 	Window w, pw, dw, *dws;
 	XWindowAttributes wa;
-	int a, j, di, n, i = 0, area = 0;
+	int a, j, di, n, i = -1, area = 0;
 	unsigned int du;
 #endif
 
@@ -621,9 +621,9 @@ setup(void) {
 #ifdef XINERAMA
 	if((info = XineramaQueryScreens(dpy, &n))) {
 		XGetInputFocus(dpy, &w, &di);
-		if(mon != -1 && mon < n)
+		if(mon != -1 && mon < n && mon >= 0)
 			i = mon;
-		if(!i && w != root && w != PointerRoot && w != None) {
+		if(i < 0 && w != root && w != PointerRoot && w != None) {
 			/* find top-level window containing current input focus */
 			do {
 				if(XQueryTree(dpy, (pw = w), &dw, &w, &dws, &du) && dws)
@@ -642,6 +642,11 @@ setup(void) {
 			for(i = 0; i < n; i++)
 				if(INTERSECT(x, y, 1, 1, info[i]))
 					break;
+
+		/* everything has failed, go with monitor 0. in theory
+		   should never happen. */
+		if (i < 0 || i == n)
+			i = 0;
 
 		x = info[i].x_org;
 		y = info[i].y_org + (topbar ? 0 : info[i].height - mh);
