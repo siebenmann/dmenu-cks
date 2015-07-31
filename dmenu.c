@@ -101,6 +101,8 @@ main(int argc, char *argv[]) {
 			pointermonitor = True;
 		else if(!strcmp(argv[i], "-t"))   /* shell like tab completion */
 			tabcomplete = True;
+		else if(!strcmp(argv[i], "-U"))   /* 'unitary' token handling */
+			unitary = True;
 		else if(i+1 == argc)
 			usage();
 		/* these options take one argument */
@@ -491,6 +493,11 @@ match(void) {
 	for(s = strtok(buf, " "); s; tokv[tokc-1] = s, s = strtok(NULL, " "))
 		if(++tokc > tokn && !(tokv = realloc(tokv, ++tokn * sizeof *tokv)))
 			die("cannot realloc %u bytes\n", tokn * sizeof *tokv);
+	if (tokc && unitary) {
+		strcpy(buf, text);
+		tokc = 1;
+		tokv[0] = buf;
+	}
 	len = tokc ? strlen(tokv[0]) : 0;
 
 	matches = lprefix = lsubstr = matchend = prefixend = substrend = NULL;
@@ -750,7 +757,7 @@ setup(void) {
 
 void
 usage(void) {
-	fputs("usage: dmenu [-b] [-db] [-f] [-i] [-P] [-t] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+	fputs("usage: dmenu [-b] [-db] [-f] [-i] [-P] [-t] [-U] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
 	      "             [-nb color] [-nf color] [-sb color] [-sf color] [-v]\n", stderr);
 	exit(1);
 }

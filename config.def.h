@@ -22,3 +22,12 @@ static unsigned int lines      = 0;
 static Bool pointermonitor = False;
 static Bool deletebs = False;
 static Bool tabcomplete = False;
+
+/*
+ * Unitary completion handling: if you have 'one two' and 'on twitch'
+ * as options and you enter 'on tw' as your entered text, this
+ * normally completes to both options because each word you entered
+ * matches part of both options. With -U, this completes to only 'on
+ * twitch'.
+ */
+static Bool unitary = False;

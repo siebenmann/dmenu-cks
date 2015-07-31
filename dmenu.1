@@ -9,6 +9,7 @@ dmenu \- dynamic menu
 .RB [ \-i ]
 .RB [ \-P ]
 .RB [ \-t ]
+.RB [ \-U ]
 .RB [ \-l
 .IR lines ]
 .RB [ \-m
@@ -69,6 +70,13 @@ turns on a shell-like tab completion mode where if you hit Tab once
 and the current text is a prefix of one or more items, dmenu simply
 fills in the rest of the common prefix and stops. Otherwise (or if
 you hit Tab twice) it behaves as normal.
+.TP
+.B \-U
+Treat the entered text as a single token for completion matching
+(even if it contains spaces)
+instead of breaking it up into multiple tokens, matching each
+token against the input, and selecting all input options that
+match all separate tokens.
 .TP
 .BI \-l " lines"
 dmenu lists items vertically, with the given number of lines.
